@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "User Auth App" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+
+  </head>
+
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-blue-600">Vittal App</h1>
+        <nav class="space-x-4">
+          <% if user_signed_in? %>
+            <span class="text-gray-700">Welcome, <%= current_user.email %></span>
+            <%= link_to "Profile", profile_path, class: "text-blue-500 hover:underline" %>
+            <% if current_user.admin? %>
+              <%= link_to "Admin Dashboard", admin_dashboard_path, class: "text-blue-500 hover:underline" %>
+            <% end %>
+            <%= link_to "Logout", destroy_user_session_path, method: :delete, class: "text-red-500 hover:underline" %>
+          <% else %>
+            <%= link_to "Sign Up", new_user_registration_path, class: "text-blue-500 hover:underline" %>
+            <%= link_to "Login", new_user_session_path, class: "text-blue-500 hover:underline" %>
+          <% end %>
+
+        </nav>
+      </div>
+    </header>
+
+    
+    <div class="max-w-7xl mx-auto px-4 mt-4">
+      <% flash.each do |type, message| %>
+        <% alert_class = type == "notice" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>
+        <div class="p-4 rounded-md mb-4 <%= alert_class %>">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
+
+   
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-6">
+      <%= yield %>
+    </main>
+
+   
+    <footer class="bg-white shadow-inner py-4 text-center text-sm text-gray-500">
+      &copy; <%= Time.current.year %> Vittal App. All rights reserved.
+    </footer>
+  </body>
+</html>
