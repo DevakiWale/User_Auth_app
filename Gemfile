@@ -33,6 +33,8 @@ gem 'cancancan', '~> 3.0'
 gem 'letter_opener'
 
 
+
+
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 

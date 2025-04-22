@@ -1,47 +1,44 @@
-# app/controllers/student/users_controller.rb
-module Student
-  class UsersController < ApplicationController
-    before_action :authenticate_user!
-    before_action :only_admins, only: [:destroy, :edit, :update]
-    load_and_authorize_resource
+# app/controllers/users_controller.rb
+class UsersController < ApplicationController
+  before_action :authenticate_user!  # Ensures the user is authenticated
+  load_and_authorize_resource  # Automatically loads @user and checks permissions for actions
 
-    def dashboard
-      # Add any logic needed for the dashboard here
+  # Show the user's profile (accessible to authenticated users)
+  def show
+    # @user is automatically loaded by load_and_authorize_resource
+  end
+
+  # Edit the user's profile (only authenticated user can edit their own profile)
+  def edit
+    # @user is already loaded by load_and_authorize_resource
+    # You may want to include logic to only allow users to edit their own profiles.
+  end
+
+  # Update the user's profile (same user-check logic)
+  def update
+    if @user.update(user_params)
+      redirect_to user_path(@user), notice: "Profile updated successfully."
+    else
+      flash.now[:alert] = "There was an error updating your profile."
+      render :edit
     end
+  end
 
-    def edit
-      @user = User.find(params[:id])
-    end
+  # Destroy the user's account (admin-only action or user-specific)
+  def destroy
+    @user.destroy
+    redirect_to root_path, notice: "Your account has been deleted."
+  end
 
-    def update
-      @user = User.find(params[:id])
-      if @user.update(user_params)
-        redirect_to edit_student_user_path(@user), notice: "Profile updated successfully."
-      else
-        render :edit
-      end
-    end
+  private
 
-    def destroy
-      @user = User.find(params[:id])
-      @user.destroy
-      redirect_to student_users_path, notice: "User deleted."
-    end
+  # Ensure the current user is only able to edit their own profile
+  def check_user_ownership
+    redirect_to root_path, alert: "You are not authorized to access this page." unless current_user == @user
+  end
 
-    def show
-      @user = User.find(params[:id])
-    end
-
-    private
-
-    def only_admins
-      unless current_user.admin?
-        redirect_to root_path, alert: "You are not authorized to access this page."
-      end
-    end
-
-    def user_params
-      params.require(:user).permit(:full_name, :phone_number, :address, :avatar)
-    end
+  # Strong parameters for user data
+  def user_params
+    params.require(:user).permit(:full_name, :phone_number, :address, :avatar)
   end
 end

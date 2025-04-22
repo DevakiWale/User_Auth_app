@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
   # Devise routes
-  devise_for :users
+  devise_for :users, controllers: {
+  sessions: 'users/sessions'
+}
+
+devise_scope :user do
+  get 'users/sign_out', to: 'devise/sessions#destroy'
+end
+
 
   # Root path
   root "home#index"
@@ -16,17 +23,27 @@ Rails.application.routes.draw do
   end
 
   # Student namespace
-  namespace :student do
-    get 'user/dashboard', to: 'users#dashboard', as: :user_dashboard
-    resources :users, only: [:show, :edit, :update, :destroy]
+  # config/routes.rb
+namespace :student do
+  resources :users, only: [:show, :edit, :update, :destroy] do
+    get 'dashboard', on: :collection
   end
+end
+# config/routes.rb
+namespace :student do
+  get 'student/users/dashboard', to: 'student/users#dashboard'
+end
 
-  # General user routes
-  resources :users, only: [:edit, :update, :show]
+  # General user routes (ensure to namespace or scope to avoid conflict with student routes)
+  # resources :users, only: [:edit, :update, :show], module: :users
+
+  # Profile routes
   resource :profile, only: [:show, :edit, :update]
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+
+  get 'users', to: 'users#index'
 
   # Development tools
   if Rails.env.development?
